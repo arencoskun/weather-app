@@ -1,7 +1,6 @@
-import { Button, View, Text, ScrollView } from "react-native";
+import { View, ScrollView } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import {
   getCurrentPositionAsync,
   requestForegroundPermissionsAsync,
@@ -9,32 +8,13 @@ import {
 } from "expo-location";
 import { PrimaryWeatherCard } from "../components/PrimaryWeatherCard";
 import { SecondaryWeatherCard } from "../components/SecondaryWeatherCard";
-
-interface OpenMeteoResponseInterface {
-  current: {
-    temperature_2m: number;
-    apparent_temperature: number;
-    time: string;
-    weather_code: string;
-    is_day: number;
-  };
-  current_units: {
-    temperature_2m: string;
-  };
-  daily: {
-    time: Array<string>;
-    weather_code: Array<number>;
-    temperature_2m_max: Array<number>;
-    temperature_2m_min: Array<number>;
-  };
-}
+import { OpenMeteoResponseInterface, makeApiRequest } from "../utils";
 
 export default function HomeScreen() {
   const [responseObject, setResponseObject] =
     useState<OpenMeteoResponseInterface>();
 
   const [location, setLocation] = useState<string>("Waiting...");
-  const isFocused = useIsFocused();
 
   useEffect(() => {
     (async () => {
@@ -45,11 +25,11 @@ export default function HomeScreen() {
 
       let location = await getCurrentPositionAsync({});
 
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.coords.latitude}&longitude=${location.coords.longitude}&current=temperature_2m,weather_code,apparent_temperature,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`;
-      axios.get(url).then((response) => {
-        setResponseObject(response.data);
-        console.log(response.data);
-      });
+      makeApiRequest(
+        location.coords.latitude,
+        location.coords.longitude,
+        setResponseObject
+      );
 
       let regionName = await reverseGeocodeAsync({
         latitude: location.coords.latitude,
@@ -71,12 +51,6 @@ export default function HomeScreen() {
         gap: 20,
       }}
     >
-      {/* <Text style={{ fontSize: 24 }}>         
-        Current temperature: {responseObject?.current.temperature_2m}{" "}
-        {responseObject?.current_units.temperature_2m}
-      </Text>
-      <Text style={{ fontSize: 24 }}>Time: {responseObject?.current.time}</Text>
-      <Text>{errorMsg}</Text> */}
       <PrimaryWeatherCard
         temperature={responseObject?.current.temperature_2m!}
         unit={responseObject?.current_units.temperature_2m!}
@@ -85,7 +59,6 @@ export default function HomeScreen() {
         weather_code={responseObject?.current.weather_code!}
         is_day={responseObject?.current.is_day!}
       />
-      {/* <View style={{ }}> */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
