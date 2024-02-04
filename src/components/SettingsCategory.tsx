@@ -2,6 +2,7 @@ import { PropsWithoutRef } from "react";
 import { Text, View } from "react-native";
 import { PressableOpacity } from "react-native-pressable-opacity";
 import { useNavigation } from "@react-navigation/native";
+import { useFonts } from "expo-font";
 
 interface SettingsCategoryProps extends PropsWithoutRef<{}> {
   title: string;

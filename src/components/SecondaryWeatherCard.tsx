@@ -1,6 +1,7 @@
 import { PropsWithoutRef } from "react";
 import { TouchableOpacity, View, Text, Image } from "react-native";
 import { weatherCodes } from "../utils";
+import { useFonts } from "expo-font";
 
 interface SecondaryWeatherCard extends PropsWithoutRef<{}> {
   day: string;

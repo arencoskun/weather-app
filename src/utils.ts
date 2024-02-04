@@ -53,11 +53,13 @@ export interface OpenMeteoResponseInterface {
 export async function makeApiRequest(
   latitude: number,
   longitude: number,
-  setResponseObject: (responseObject: OpenMeteoResponseInterface) => void
+  setResponseObject: (responseObject: OpenMeteoResponseInterface) => void,
+  setLoading: (loading: boolean) => void
 ) {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code,apparent_temperature,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`;
   axios.get(url).then((response) => {
     setResponseObject(response.data);
+    setLoading(false);
     console.log(response.data);
   });
 }

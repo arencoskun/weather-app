@@ -1,4 +1,4 @@
-import { View, ScrollView } from "react-native";
+import { View, ScrollView, ActivityIndicator } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import {
@@ -13,6 +13,7 @@ import { OpenMeteoResponseInterface, makeApiRequest } from "../utils";
 export default function HomeScreen() {
   const [responseObject, setResponseObject] =
     useState<OpenMeteoResponseInterface>();
+  const [loading, setLoading] = useState<boolean>(true);
 
   const [location, setLocation] = useState<string>("Waiting...");
 
@@ -28,7 +29,8 @@ export default function HomeScreen() {
       makeApiRequest(
         location.coords.latitude,
         location.coords.longitude,
-        setResponseObject
+        setResponseObject,
+        setLoading
       );
 
       let regionName = await reverseGeocodeAsync({
@@ -42,7 +44,12 @@ export default function HomeScreen() {
   }, []);
 
   const navigator = useNavigation<any>();
-  return (
+  return loading ? (
+    <ActivityIndicator
+      style={{ width: "100%", height: "100%" }}
+      size={"large"}
+    ></ActivityIndicator>
+  ) : (
     <View
       style={{
         flex: 1,
