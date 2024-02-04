@@ -32,21 +32,22 @@ export default function HomeScreen() {
         return;
       }
 
-      setLocationObject(await getCurrentPositionAsync({}));
+      let location = await getCurrentPositionAsync({});
 
       makeApiRequest(
-        locationObject!.coords.latitude,
-        locationObject!.coords.longitude,
+        location.coords.latitude,
+        location.coords.longitude,
         setResponseObject,
         setLoading
       );
 
       let regionName = await reverseGeocodeAsync({
-        latitude: locationObject!.coords.latitude,
-        longitude: locationObject!.coords.longitude,
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
       });
 
       setLocation(regionName[0].city!);
+      setLocationObject(location);
       console.log(regionName);
     })();
   }, []);
