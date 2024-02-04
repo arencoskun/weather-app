@@ -1,7 +1,13 @@
-import { View, ScrollView, ActivityIndicator } from "react-native";
+import {
+  View,
+  ScrollView,
+  ActivityIndicator,
+  RefreshControl,
+} from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import {
+  LocationObject,
   getCurrentPositionAsync,
   requestForegroundPermissionsAsync,
   reverseGeocodeAsync,
@@ -14,8 +20,10 @@ export default function HomeScreen() {
   const [responseObject, setResponseObject] =
     useState<OpenMeteoResponseInterface>();
   const [loading, setLoading] = useState<boolean>(true);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
 
   const [location, setLocation] = useState<string>("Waiting...");
+  const [locationObject, setLocationObject] = useState<LocationObject>();
 
   useEffect(() => {
     (async () => {
@@ -24,18 +32,18 @@ export default function HomeScreen() {
         return;
       }
 
-      let location = await getCurrentPositionAsync({});
+      setLocationObject(await getCurrentPositionAsync({}));
 
       makeApiRequest(
-        location.coords.latitude,
-        location.coords.longitude,
+        locationObject!.coords.latitude,
+        locationObject!.coords.longitude,
         setResponseObject,
         setLoading
       );
 
       let regionName = await reverseGeocodeAsync({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
+        latitude: locationObject!.coords.latitude,
+        longitude: locationObject!.coords.longitude,
       });
 
       setLocation(regionName[0].city!);
@@ -43,20 +51,33 @@ export default function HomeScreen() {
     })();
   }, []);
 
-  const navigator = useNavigation<any>();
   return loading ? (
     <ActivityIndicator
       style={{ width: "100%", height: "100%" }}
       size={"large"}
     ></ActivityIndicator>
   ) : (
-    <View
-      style={{
-        flex: 1,
+    <ScrollView
+      contentContainerStyle={{
         alignItems: "center",
         justifyContent: "center",
+        flex: 1,
         gap: 20,
       }}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={() => {
+            setLoading(true);
+            makeApiRequest(
+              locationObject!.coords.latitude,
+              locationObject!.coords.longitude,
+              setResponseObject,
+              setLoading
+            );
+          }}
+        />
+      }
     >
       <PrimaryWeatherCard
         temperature={responseObject?.current.temperature_2m!}
@@ -91,6 +112,6 @@ export default function HomeScreen() {
           />
         ))}
       </ScrollView>
-    </View>
+    </ScrollView>
   );
 }
