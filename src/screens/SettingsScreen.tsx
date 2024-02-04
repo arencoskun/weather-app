@@ -1,19 +1,19 @@
 import { View, Text } from "react-native";
-import SettingsCategory from "../components/SettingsCategory";
+import Category from "../components/Category";
 
 export default function SettingsScreen() {
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <SettingsCategory
+      <Category
         title="Appearance"
         index={0}
         targetScene="Appearance Settings"
-      ></SettingsCategory>
-      <SettingsCategory
+      ></Category>
+      <Category
         title="Localization"
         index={1}
         targetScene="Localization Settings"
-      ></SettingsCategory>
+      ></Category>
     </View>
   );
 }

@@ -4,7 +4,7 @@ import {
   CountriesNowResponseInterface,
   makeCountriesNowAPIRequest,
 } from "../utils";
-import SettingsCategory from "../components/SettingsCategory";
+import Category from "../components/Category";
 
 export default function SearchScreen() {
   const [responseObject, setResponseObject] =
@@ -39,12 +39,7 @@ export default function SearchScreen() {
       {responseObject?.data
         .filter((el) => el.country.includes(searchFilter))
         .map((el, i) => (
-          <SettingsCategory
-            key={i}
-            title={el.country}
-            index={i}
-            targetScene={"Home"}
-          />
+          <Category key={i} title={el.country} index={i} targetScene={"Home"} />
         ))}
     </ScrollView>
   );

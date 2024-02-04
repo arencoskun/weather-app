@@ -10,7 +10,7 @@ interface SettingsCategoryProps extends PropsWithoutRef<{}> {
   targetScene: string;
 }
 
-export default function SettingsCategory({
+export default function Category({
   title,
   index,
   targetScene,
