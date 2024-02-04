@@ -54,8 +54,13 @@ export interface CountriesNowResponseInterface {
   data: Array<CountriesNowResponse>;
 }
 
+export interface CountriesNowCitiesResponseInterface {
+  data: Array<string>;
+}
+
 interface CountriesNowResponse {
   country: string;
+  cities: Array<string>;
 }
 
 export async function makeApiRequest(
@@ -75,11 +80,24 @@ export async function makeApiRequest(
 export async function makeCountriesNowAPIRequest(
   setResponseObject: (responseObject: CountriesNowResponseInterface) => void
 ) {
-  var responseObject: CountriesNowResponseInterface;
   console.log("making request");
   const url = `https://countriesnow.space/api/v0.1/countries`;
   axios.get(url).then((response) => {
     console.log("got response");
+    console.log(response.data);
+    setResponseObject(response.data);
+  });
+}
+
+export async function makeCountriesNowAPIRequestCities(
+  country: string,
+  setResponseObject: (
+    responseObject: CountriesNowCitiesResponseInterface
+  ) => void
+) {
+  console.log("making request");
+  const url = `https://countriesnow.space/api/v0.1/countries/cities`;
+  axios.post(url, { country }).then((response) => {
     console.log(response.data);
     setResponseObject(response.data);
   });

@@ -1,8 +1,12 @@
-import { ScrollView, TextInput, View } from "react-native";
+import { ScrollView, TextInput, View, Text, FlatList } from "react-native";
 import { useEffect, useRef, useState } from "react";
+import React, { useMemo } from "react";
 import {
+  CountriesNowCitiesResponseInterface,
   CountriesNowResponseInterface,
+  makeApiRequest,
   makeCountriesNowAPIRequest,
+  makeCountriesNowAPIRequestCities,
 } from "../utils";
 import Category from "../components/Category";
 import { useScrollToTop } from "@react-navigation/native";
@@ -10,10 +14,13 @@ import { useScrollToTop } from "@react-navigation/native";
 export default function SearchScreen() {
   const [responseObject, setResponseObject] =
     useState<CountriesNowResponseInterface>();
+  const [responseObjectCities, setResponseObjectCities] =
+    useState<CountriesNowCitiesResponseInterface>();
   const [searchFilter, setSearchFilter] = useState<string>("");
-  const scrollViewRef = useRef<ScrollView>(null);
+  const [showingCities, setShowingCities] = useState<boolean>(false);
+  const flatListRef = useRef<FlatList>(null);
 
-  useScrollToTop(scrollViewRef);
+  useScrollToTop(flatListRef);
 
   useEffect(() => {
     (async () => {
@@ -36,26 +43,76 @@ export default function SearchScreen() {
           marginTop: 5,
           marginBottom: 5,
         }}
-        placeholder="Search a country..."
+        placeholder={"Search a " + (showingCities ? "city..." : "country...")}
         onChangeText={(newSearchFilter: string) => {
           setSearchFilter(newSearchFilter);
-          scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+          flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
         }}
+        value={searchFilter}
       ></TextInput>
-      <ScrollView contentContainerStyle={{ gap: 5 }} ref={scrollViewRef}>
-        {responseObject?.data
-          .filter((el) =>
-            el.country.toLowerCase().includes(searchFilter.toLowerCase())
-          )
-          .map((el, i) => (
-            <Category
-              key={i}
-              title={el.country}
-              index={i}
-              targetScene={"Home"}
-            />
-          ))}
-      </ScrollView>
+      <View>
+        {!showingCities ? (
+          <FlatList
+            data={responseObject?.data.filter((el) =>
+              el.country.toLowerCase().includes(searchFilter.toLowerCase())
+            )}
+            contentContainerStyle={{ gap: 5 }}
+            renderItem={({ item, index }) => (
+              <Category
+                key={index}
+                title={item.country}
+                index={index}
+                onClick={async () => {
+                  await makeCountriesNowAPIRequestCities(
+                    item.country.toLowerCase(),
+                    setResponseObjectCities
+                  );
+                  setSearchFilter("");
+                  setShowingCities(true);
+                }}
+              />
+            )}
+            ref={flatListRef}
+          ></FlatList>
+        ) : (
+          <FlatList
+            data={responseObjectCities?.data.filter((el) =>
+              el.toLowerCase().includes(searchFilter.toLowerCase())
+            )}
+            contentContainerStyle={{ gap: 5 }}
+            renderItem={({ item, index }) => (
+              <Category
+                key={index}
+                title={item}
+                index={index}
+                onClick={async () => {
+                  setSearchFilter("");
+                  setShowingCities(false);
+                }}
+              />
+            )}
+            ref={flatListRef}
+          ></FlatList>
+        )}
+        {/* {showingCities
+          ? responseObjectCities?.data.map((el, i) => (
+              <Category
+                key={i}
+                title={el}
+                index={i}
+                onClick={async () => {
+                  setShowingCities(false);
+                }}
+              />
+            ))
+          : responseObject?.data
+              .filter((el) =>
+                el.country.toLowerCase().includes(searchFilter.toLowerCase())
+              )
+              .map((el, i) => (
+                
+              ))} */}
+      </View>
     </View>
   );
 }

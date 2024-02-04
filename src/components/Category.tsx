@@ -7,13 +7,13 @@ import { useFonts } from "expo-font";
 interface SettingsCategoryProps extends PropsWithoutRef<{}> {
   title: string;
   index: number;
-  targetScene: string;
+  onClick?: () => void;
 }
 
 export default function Category({
   title,
   index,
-  targetScene,
+  onClick,
   ...props
 }: SettingsCategoryProps) {
   const navigator = useNavigation<any>();
@@ -26,7 +26,7 @@ export default function Category({
         borderRadius: 10,
         left: 5,
       }}
-      onPress={() => navigator.navigate(targetScene)}
+      onPress={onClick}
     >
       <View style={{ width: "100%", height: "100%" }}>
         <Text
