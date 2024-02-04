@@ -1,15 +1,51 @@
-import { View, Text } from "react-native";
-import { PrimaryWeatherCard } from "../components/PrimaryWeatherCard";
+import { ScrollView, Text, TextInput } from "react-native";
+import { useEffect, useState } from "react";
+import {
+  CountriesNowResponseInterface,
+  makeCountriesNowAPIRequest,
+} from "../utils";
+import SettingsCategory from "../components/SettingsCategory";
 
 export default function SearchScreen() {
+  const [responseObject, setResponseObject] =
+    useState<CountriesNowResponseInterface>();
+  const [searchFilter, setSearchFilter] = useState<string>("");
+
+  useEffect(() => {
+    (async () => {
+      await makeCountriesNowAPIRequest(setResponseObject);
+      console.log(responseObject);
+    })();
+  }, []);
+
   return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      {/* <PrimaryWeatherCard
-        temperature={0}
-        unit={"C"}
-        location={"Istanbul"}
-        time={"13:30"}
-      /> */}
-    </View>
+    <ScrollView contentContainerStyle={{ gap: 5 }}>
+      <TextInput
+        style={{
+          height: 60,
+          backgroundColor: "#c9c7c7",
+          borderRadius: 10,
+          fontFamily: "Inter-Light",
+          fontSize: 24,
+          paddingLeft: 5,
+          marginHorizontal: 5,
+          marginTop: 5,
+        }}
+        placeholder="Search a country..."
+        onChangeText={(newSearchFilter: string) =>
+          setSearchFilter(newSearchFilter)
+        }
+      ></TextInput>
+      {responseObject?.data
+        .filter((el) => el.country.includes(searchFilter))
+        .map((el, i) => (
+          <SettingsCategory
+            key={i}
+            title={el.country}
+            index={i}
+            targetScene={"Home"}
+          />
+        ))}
+    </ScrollView>
   );
 }

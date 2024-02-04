@@ -21,11 +21,9 @@ export default function SettingsCategory({
     <PressableOpacity
       style={{
         backgroundColor: "#c9c7c7",
-        width: "97%",
         height: 60,
+        width: "97%",
         borderRadius: 10,
-        position: "absolute",
-        top: 20 + 70 * index,
         left: 5,
       }}
       onPress={() => navigator.navigate(targetScene)}

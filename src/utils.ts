@@ -50,6 +50,14 @@ export interface OpenMeteoResponseInterface {
   };
 }
 
+export interface CountriesNowResponseInterface {
+  data: Array<CountriesNowResponse>;
+}
+
+interface CountriesNowResponse {
+  country: string;
+}
+
 export async function makeApiRequest(
   latitude: number,
   longitude: number,
@@ -61,5 +69,18 @@ export async function makeApiRequest(
     setResponseObject(response.data);
     setLoading(false);
     console.log(response.data);
+  });
+}
+
+export async function makeCountriesNowAPIRequest(
+  setResponseObject: (responseObject: CountriesNowResponseInterface) => void
+) {
+  var responseObject: CountriesNowResponseInterface;
+  console.log("making request");
+  const url = `https://countriesnow.space/api/v0.1/countries`;
+  axios.get(url).then((response) => {
+    console.log("got response");
+    console.log(response.data);
+    setResponseObject(response.data);
   });
 }
