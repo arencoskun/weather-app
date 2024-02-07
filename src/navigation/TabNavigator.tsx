@@ -3,8 +3,12 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { HomeScreen, SearchScreen, SettingsScreen } from "../screens";
-
-const Tab = createBottomTabNavigator();
+export type TabNavigatorParamList = {
+  Home: { latitude: number | undefined; longitude: number | undefined };
+  Search: undefined;
+  Settings: undefined;
+};
+const Tab = createBottomTabNavigator<TabNavigatorParamList>();
 
 export default function TabNavigator() {
   return (
@@ -12,6 +16,7 @@ export default function TabNavigator() {
       <Tab.Screen
         component={HomeScreen}
         name="Home"
+        initialParams={{ latitude: 0, longitude: 0 }}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" color={color} size={size} />

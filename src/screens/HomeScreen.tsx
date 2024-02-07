@@ -5,7 +5,7 @@ import {
   RefreshControl,
 } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import { PropsWithoutRef, useEffect, useState } from "react";
 import {
   LocationObject,
   getCurrentPositionAsync,
@@ -15,8 +15,16 @@ import {
 import { PrimaryWeatherCard } from "../components/PrimaryWeatherCard";
 import { SecondaryWeatherCard } from "../components/SecondaryWeatherCard";
 import { OpenMeteoResponseInterface, makeApiRequest } from "../utils";
+import {
+  BottomTabNavigationProp,
+  BottomTabScreenProps,
+} from "@react-navigation/bottom-tabs";
+import { TabNavigatorParamList } from "../navigation/TabNavigator";
 
-export default function HomeScreen() {
+export default function HomeScreen({
+  route,
+  navigation,
+}: BottomTabScreenProps<TabNavigatorParamList, "Home">) {
   const [responseObject, setResponseObject] =
     useState<OpenMeteoResponseInterface>();
   const [loading, setLoading] = useState<boolean>(true);
@@ -25,32 +33,67 @@ export default function HomeScreen() {
   const [location, setLocation] = useState<string>("Waiting...");
   const [locationObject, setLocationObject] = useState<LocationObject>();
 
+  const isFocused = useIsFocused();
+
+  console.log(route.params.latitude);
+  console.log(route.params.longitude);
+
   useEffect(() => {
-    (async () => {
-      let { status } = await requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        return;
-      }
+    if (isFocused) {
+      (async () => {
+        console.log("in effect");
+        let { status } = await requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          return;
+        }
 
-      let location = await getCurrentPositionAsync({});
+        console.log("got permission");
 
-      makeApiRequest(
-        location.coords.latitude,
-        location.coords.longitude,
-        setResponseObject,
-        setLoading
-      );
+        if (route.params.latitude !== 0 && route.params.longitude !== 0) {
+          makeApiRequest(
+            route.params.latitude!,
+            route.params.longitude!,
+            setResponseObject,
+            setLoading
+          );
 
-      let regionName = await reverseGeocodeAsync({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      });
+          let regionName = await reverseGeocodeAsync({
+            latitude: route.params.latitude!,
+            longitude: route.params.longitude!,
+          });
 
-      setLocation(regionName[0].city!);
-      setLocationObject(location);
-      console.log(regionName);
-    })();
-  }, []);
+          setLocation(
+            regionName[0].district !== null
+              ? regionName[0].district!
+              : regionName[0].city!
+          );
+          //setLocationObject(location);
+          console.log(regionName);
+        } else {
+          let location = await getCurrentPositionAsync({});
+          makeApiRequest(
+            location.coords.latitude,
+            location.coords.longitude,
+            setResponseObject,
+            setLoading
+          );
+
+          let regionName = await reverseGeocodeAsync({
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          });
+
+          setLocation(
+            regionName[0].district !== null
+              ? regionName[0].district!
+              : regionName[0].city!
+          );
+          setLocationObject(location);
+          console.log(regionName);
+        }
+      })();
+    }
+  }, [isFocused]);
 
   return loading ? (
     <ActivityIndicator
@@ -71,8 +114,12 @@ export default function HomeScreen() {
           onRefresh={() => {
             setLoading(true);
             makeApiRequest(
-              locationObject!.coords.latitude,
-              locationObject!.coords.longitude,
+              locationObject
+                ? locationObject!.coords.latitude
+                : route.params.latitude!,
+              locationObject
+                ? locationObject!.coords.longitude
+                : route.params.longitude!,
               setResponseObject,
               setLoading
             );

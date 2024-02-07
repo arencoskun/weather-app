@@ -1,15 +1,15 @@
-import { ScrollView, TextInput, View, Text, FlatList } from "react-native";
+import { TextInput, View, FlatList } from "react-native";
 import { useEffect, useRef, useState } from "react";
-import React, { useMemo } from "react";
+import React from "react";
 import {
   CountriesNowCitiesResponseInterface,
   CountriesNowResponseInterface,
-  makeApiRequest,
   makeCountriesNowAPIRequest,
   makeCountriesNowAPIRequestCities,
 } from "../utils";
 import Category from "../components/Category";
-import { useScrollToTop } from "@react-navigation/native";
+import { useScrollToTop, useNavigation } from "@react-navigation/native";
+import { geocodeAsync } from "expo-location";
 
 export default function SearchScreen() {
   const [responseObject, setResponseObject] =
@@ -19,6 +19,7 @@ export default function SearchScreen() {
   const [searchFilter, setSearchFilter] = useState<string>("");
   const [showingCities, setShowingCities] = useState<boolean>(false);
   const flatListRef = useRef<FlatList>(null);
+  const navigation = useNavigation<any>();
 
   useScrollToTop(flatListRef);
 
@@ -86,6 +87,11 @@ export default function SearchScreen() {
                 title={item}
                 index={index}
                 onClick={async () => {
+                  let location = (await geocodeAsync(item))[0];
+                  navigation.navigate("Home", {
+                    latitude: location.latitude,
+                    longitude: location.longitude,
+                  });
                   setSearchFilter("");
                   setShowingCities(false);
                 }}

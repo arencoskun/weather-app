@@ -1,4 +1,10 @@
 import axios from "axios";
+// import {
+//   LocationObject,
+//   getCurrentPositionAsync,
+//   getLastKnownPositionAsync,
+
+// } from "expo-location";
 
 export const weatherCodes: { [id: number]: string } = {
   0: "01",
@@ -69,6 +75,7 @@ export async function makeApiRequest(
   setResponseObject: (responseObject: OpenMeteoResponseInterface) => void,
   setLoading: (loading: boolean) => void
 ) {
+  console.log("making api request");
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code,apparent_temperature,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`;
   axios.get(url).then((response) => {
     setResponseObject(response.data);
